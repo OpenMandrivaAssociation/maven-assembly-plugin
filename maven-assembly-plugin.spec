@@ -1,6 +1,6 @@
 Name:           maven-assembly-plugin
 Version:        2.2
-Release:        2
+Release:        3
 Summary:        Maven Assembly Plugin
 
 Group:          Development/Java
@@ -44,14 +44,14 @@ BuildRequires: maven-shared-file-management
 BuildRequires: maven-shared-repository-builder
 BuildRequires: maven-shared-filtering
 
-BuildRequires: easymock
+BuildRequires: easymock2
 BuildRequires: jdom
 BuildRequires: jaxen
 BuildRequires: saxpath
 BuildRequires: junit
 
 Requires: java >= 0:1.6.0
-Requires: easymock
+Requires: easymock2
 Requires: jdom
 Requires: jaxen
 Requires: saxpath
