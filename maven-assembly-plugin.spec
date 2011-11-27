@@ -1,6 +1,6 @@
 Name:           maven-assembly-plugin
 Version:        2.2
-Release:        3
+Release:        5
 Summary:        Maven Assembly Plugin
 
 Group:          Development/Java
