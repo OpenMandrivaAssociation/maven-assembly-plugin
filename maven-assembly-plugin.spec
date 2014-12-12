@@ -1,7 +1,8 @@
 %{?_javapackages_macros:%_javapackages_macros}
 Name:           maven-assembly-plugin
-Version:        2.4
-Release:        7.1%{?dist}
+Version:        2.4.1
+Release:        1.1
+Group:		System/Libraries
 Summary:        Maven Assembly Plugin
 License:        ASL 2.0
 URL:            http://maven.apache.org/plugins/maven-assembly-plugin/
