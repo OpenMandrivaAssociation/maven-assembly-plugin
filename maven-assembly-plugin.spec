@@ -1,139 +1,181 @@
-%{?_javapackages_macros:%_javapackages_macros}
-Name:           maven-assembly-plugin
-Version:        2.4.1
-Release:        1.3
-Group:		System/Libraries
-Summary:        Maven Assembly Plugin
-License:        ASL 2.0
-URL:            https://maven.apache.org/plugins/maven-assembly-plugin/
-Source0:        http://repo2.maven.org/maven2/org/apache/maven/plugins/%{name}/%{version}/%{name}-%{version}-source-release.zip
-BuildArch:      noarch
+Name:		maven-assembly-plugin
+Version:	3.8.0
+Release:	1
+Summary:	Builds archives from assembly descriptors
+Group:		Development/Java
+License:	Apache-2.0
+URL:		https://maven.apache.org/plugins/maven-assembly-plugin/
+Source0:	https://github.com/apache/maven-assembly-plugin/archive/refs/tags/maven-assembly-plugin-%{version}.tar.gz#/maven-assembly-plugin-%{version}.tar.gz
+# Modello is not packaged. This jar holds the generated model sources.
+Source1:	https://repo1.maven.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/%{version}/maven-assembly-plugin-%{version}-sources.jar
+BuildArch:	noarch
+BuildRequires:	python
+BuildRequires:	maven
+BuildRequires:	maven-components >= 3.10.0
+BuildRequires:	java-current-devel
+# Generates META-INF/maven/plugin.xml. The separate annotations package
+# conflicts with maven-components on the same index file.
+BuildRequires:	maven-plugin-tools
+BuildRequires:	mvn(org.apache.maven.plugins:maven-plugin-plugin)
+BuildRequires:	mvn(org.codehaus.plexus:plexus-utils)
+BuildRequires:	plexus-utils >= 3.6.2
+Requires:	plexus-utils >= 3.6.2
+BuildRequires:	mvn(commons-io:commons-io)
+BuildRequires:	apache-commons-io >= 1:2.22.0
+Requires:	apache-commons-io >= 1:2.22.0
+BuildRequires:	mvn(org.apache.maven:maven-archiver)
+BuildRequires:	maven-archiver >= 3.6.6
+Requires:	maven-archiver >= 3.6.6
+BuildRequires:	mvn(org.apache.maven.shared:maven-common-artifact-filters)
+BuildRequires:	maven-common-artifact-filters >= 3.4.0-2
+Requires:	maven-common-artifact-filters >= 3.4.0-2
+BuildRequires:	mvn(org.codehaus.plexus:plexus-interpolation)
+BuildRequires:	plexus-interpolation >= 1.30.0
+Requires:	plexus-interpolation >= 1.30.0
+BuildRequires:	mvn(org.apache.maven.shared:maven-filtering)
+BuildRequires:	maven-filtering >= 3.5.1
+Requires:	maven-filtering >= 3.5.1
+BuildRequires:	mvn(org.codehaus.plexus:plexus-io)
+BuildRequires:	plexus-io >= 3.8.1
+Requires:	plexus-io >= 3.8.1
+BuildRequires:	mvn(org.codehaus.plexus:plexus-archiver)
+BuildRequires:	plexus-archiver >= 4.15.0
+Requires:	plexus-archiver >= 4.15.0
+BuildRequires:	mvn(org.apache.maven.resolver:maven-resolver-util)
+BuildRequires:	mvn(org.apache.maven:maven-plugin-api)
+BuildRequires:	mvn(org.apache.maven:maven-core)
+BuildRequires:	mvn(org.apache.maven:maven-artifact)
+BuildRequires:	mvn(org.apache.maven:maven-model)
+BuildRequires:	mvn(org.apache.maven:maven-model-builder)
+BuildRequires:	mvn(org.apache.maven.resolver:maven-resolver-api)
+BuildRequires:	mvn(org.eclipse.sisu:org.eclipse.sisu.plexus)
+BuildRequires:	mvn(javax.inject:javax.inject)
+# javax.inject and jakarta-inject both provide this coordinate.
+BuildRequires:	javax.inject >= 1-2
+Requires:	javax.inject >= 1-2
+BuildRequires:	mvn(org.slf4j:slf4j-api)
+BuildRequires:	mvn(org.apache.maven.plugin-tools:maven-plugin-annotations)
+BuildSystem:	maven
+BuildOption(install):	--file-name %{name}
 
-BuildRequires:  maven-local
-BuildRequires:  mvn(org.apache.maven.plugin-tools:maven-plugin-annotations)
-BuildRequires:  mvn(org.apache.maven.plugins:maven-plugins:pom:)
-BuildRequires:  mvn(org.apache.maven.shared:file-management)
-BuildRequires:  mvn(org.apache.maven.shared:maven-common-artifact-filters)
-BuildRequires:  mvn(org.apache.maven.shared:maven-filtering)
-BuildRequires:  mvn(org.apache.maven.shared:maven-repository-builder)
-BuildRequires:  mvn(org.apache.maven.shared:maven-shared-io)
-BuildRequires:  mvn(org.apache.maven:maven-archiver)
-BuildRequires:  mvn(org.apache.maven:maven-artifact)
-BuildRequires:  mvn(org.apache.maven:maven-core)
-BuildRequires:  mvn(org.apache.maven:maven-model)
-BuildRequires:  mvn(org.apache.maven:maven-plugin-api)
-BuildRequires:  mvn(org.apache.maven:maven-project)
-BuildRequires:	mvn(org.codehaus.modello:modello-maven-plugin)
-BuildRequires:  mvn(org.codehaus.plexus:plexus-archiver)
-BuildRequires:  mvn(org.codehaus.plexus:plexus-component-annotations)
-BuildRequires:  mvn(org.codehaus.plexus:plexus-container-default)
-BuildRequires:  mvn(org.codehaus.plexus:plexus-interpolation)
-BuildRequires:  mvn(org.codehaus.plexus:plexus-io)
-BuildRequires:  mvn(org.codehaus.plexus:plexus-utils)
-
-Provides:       maven2-plugin-assembly = 1:%{version}-%{release}
-Obsoletes:      maven2-plugin-assembly <= 0:2.0.8
+Obsoletes:	maven2-plugin-assembly <= 0:2.0.8
+Provides:	maven2-plugin-assembly = %{EVRD}
+Obsoletes:	maven-assembly-plugin-javadoc < %{EVRD}
 
 %description
-A Maven plugin to create archives of your project's sources, classes,
-dependencies etc. from flexible assembly descriptors.
-
-%package javadoc
-Summary:        API documentation for %{name}
-
-%description javadoc
-This package provides %{summary}.
+Builds archives from assembly descriptors, including the built-in
+bin, src, and jar-with-dependencies formats. 3.8.0 copies manifest
+entries from the archive configuration into the final manifest and
+validates the model at the minimum level. Modello is not packaged,
+so the model classes come from the upstream sources jar. Tests need
+JUnit Jupiter, so they are not run.
 
 %prep
-%setup -q
+%autosetup -n maven-assembly-plugin-maven-assembly-plugin-%{version}
+rm -rf src/test src/it .github src/main/mdo
+python - %{SOURCE1} <<'PY'
+import sys
+import zipfile
+from pathlib import Path
+z = zipfile.ZipFile(sys.argv[1])
+root = Path("src/main/java")
+for name in z.namelist():
+    if name == "META-INF/NOTICE":
+        Path("NOTICE").write_bytes(z.read(name))
+        continue
+    if not name.endswith(".java") or "/assembly/model/" not in name:
+        continue
+    if name.endswith("/Assemblies.java"):
+        continue
+    dest = root / name
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(z.read(name))
+PY
+python - <<'PY'
+import xml.etree.ElementTree as ET
+NS = "http://maven.apache.org/POM/4.0.0"
+ET.register_namespace("", NS)
 
-%build
-# Tests need easymockclassextension version 2.x, which is incompatible
-# with easymockclassextension version 3.x we have in Fedora.
-%mvn_build -f
+def tag(name):
+    return "{" + NS + "}" + name
 
-%install
-%mvn_install
+def add(parent, name, text):
+    node = ET.SubElement(parent, tag(name))
+    node.text = text
+    return node
+
+root = ET.Element(tag("project"))
+add(root, "modelVersion", "4.0.0")
+add(root, "groupId", "org.apache.maven.plugins")
+add(root, "artifactId", "maven-assembly-plugin")
+add(root, "version", "%{version}")
+add(root, "packaging", "maven-plugin")
+add(root, "name", "Apache Maven Assembly Plugin")
+props = ET.SubElement(root, tag("properties"))
+add(props, "maven.compiler.release", "8")
+add(props, "project.build.sourceEncoding", "UTF-8")
+deps = ET.SubElement(root, tag("dependencies"))
+items = (
+    ("org.codehaus.plexus", "plexus-utils", "3.6.2", None),
+    ("commons-io", "commons-io", "2.22.0", None),
+    ("org.apache.maven", "maven-archiver", "3.6.6", None),
+    ("org.apache.maven.shared", "maven-common-artifact-filters", "3.4.0", None),
+    ("org.codehaus.plexus", "plexus-interpolation", "1.30.0", None),
+    ("org.apache.maven.shared", "maven-filtering", "3.5.1", None),
+    ("org.codehaus.plexus", "plexus-io", "3.8.1", None),
+    ("org.codehaus.plexus", "plexus-archiver", "4.15.0", None),
+    ("org.apache.maven.resolver", "maven-resolver-util", "2.0.24", None),
+    ("org.apache.maven", "maven-plugin-api", "3.10.0", "provided"),
+    ("org.apache.maven", "maven-core", "3.10.0", "provided"),
+    ("org.apache.maven", "maven-artifact", "3.10.0", "provided"),
+    ("org.apache.maven", "maven-model", "3.10.0", "provided"),
+    ("org.apache.maven", "maven-model-builder", "3.10.0", "provided"),
+    ("org.apache.maven.resolver", "maven-resolver-api", "2.0.24", "provided"),
+    ("org.eclipse.sisu", "org.eclipse.sisu.plexus", "0.9.0.M3", "provided"),
+    ("javax.inject", "javax.inject", "1", "provided"),
+    ("org.slf4j", "slf4j-api", "1.7.36", "provided"),
+    ("org.apache.maven.plugin-tools", "maven-plugin-annotations", "3.15.2", "provided"),
+)
+for group, artifact, version, scope in items:
+    dep = ET.SubElement(deps, tag("dependency"))
+    add(dep, "groupId", group)
+    add(dep, "artifactId", artifact)
+    add(dep, "version", version)
+    if scope:
+        add(dep, "scope", scope)
+build = ET.SubElement(root, tag("build"))
+plugins = ET.SubElement(build, tag("plugins"))
+plugin = ET.SubElement(plugins, tag("plugin"))
+add(plugin, "groupId", "org.apache.maven.plugins")
+add(plugin, "artifactId", "maven-plugin-plugin")
+# The lifecycle binding asks for 3.15.1. The packaged plugin is 3.16.0.
+add(plugin, "version", "3.16.0")
+ET.ElementTree(root).write("pom.xml", encoding="utf-8", xml_declaration=True)
+PY
+# Sisu loads @Named classes from this index. The indexer plugin is not packaged.
+python - <<'PY'
+import re
+from pathlib import Path
+root = Path("src/main/java")
+names = []
+for path in sorted(root.rglob("*.java")):
+    text = path.read_text(encoding="utf-8", errors="replace")
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    text = re.sub(r"//.*?$", "", text, flags=re.M)
+    match = re.search(r"\b(?:class|interface|enum)\s+([A-Za-z0-9_]+)", text)
+    if not match:
+        continue
+    if "@Named" not in text[:match.start()]:
+        continue
+    pkg = re.search(r"(?m)^package\s+([A-Za-z0-9_.]+)\s*;", text)
+    if not pkg:
+        continue
+    names.append(pkg.group(1) + "." + match.group(1))
+if names:
+    dest = Path("src/main/resources/META-INF/sisu")
+    dest.mkdir(parents=True, exist_ok=True)
+    (dest / "javax.inject.Named").write_text("\n".join(names) + "\n", encoding="utf-8")
+PY
 
 %files -f .mfiles
-%dir %{_javadir}/%{name}
-%doc LICENSE NOTICE
-
-%files javadoc -f .mfiles-javadoc
-%doc LICENSE NOTICE
-
-%changelog
-* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4-7
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
-
-* Mon Apr 22 2013 Mikolaj Izdebski <mizdebsk@redhat.com> - 2.4-6
-- Build with xmvn
-- Install license files
-- Resolves: rhbz#915608
-
-* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4-5
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
-
-* Wed Feb 06 2013 Java SIG <java-devel@lists.fedoraproject.org> - 2.4-4
-- Update for https://fedoraproject.org/wiki/Fedora_19_Maven_Rebuild
-- Replace maven BuildRequires with maven-local
-
-* Thu Dec 13 2012 Tomas Radej <tradej@redhat.com> - 2.4-1
-- Updated to latest upstream version.
-- Fixed mail in changelog
-
-* Thu Nov 22 2012 Jaromir Capik <jcapik@redhat.com> - 2.3-3
-- Migration to plexus-containers-container-default
-
-* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
-
-* Wed Mar 07 2012 Tomas Radej <tradej@redhat.com> - 2.3-1
-- Update to latest upstream vresion.
-
-* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.2.2-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
-
-* Mon Dec 12 2011 Tomas Radej <tradej@redhat.com> - 2.2.2-3
-- Added R on plexus-containers-component-metadata
-
-* Mon Dec 12 2011 Alexander Kurtakov <akurtako@redhat.com> 2.2.2-2
-- Remove plexus-maven-plugin require.
-
-* Tue Dec 6 2011 Alexander Kurtakov <akurtako@redhat.com> 2.2.2-1
-- Update to latest upstream version.
-
-* Sun Oct 2 2011 Alexander Kurtakov <akurtako@redhat.com> 2.2.1-4
-- Add missing BR/R.
-
-* Thu Jul 15 2011 Jaromir Capik <jcapik@redhat.com> 2.2.1-3
-- modello removed from requires
-- %update_maven_depmap removed
-
-* Thu May 23 2011 Jaromir Capik <jcapik@redhat.com> 2.2.1-2
-- Migration from plexus-maven-plugin to plexus-containers-component-metadata
-- Missing modello dependency added
-- Minor spec file changes according to the latest guidelines
-
-* Thu Mar 17 2011 Alexander Kurtakov <akurtako@redhat.com> 2.2.1-1
-- Update to upstream 2.2.1 release.
-
-* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.2-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
-
-* Wed Dec 29 2010 Alexander Kurtakov <akurtako@redhat.com> 2.2-1
-- Update to final release.
-
-* Tue Jun 15 2010 Alexander Kurtakov <akurtako@redhat.com> 2.2-0.4.beta5
-- Add missing BuildRequires.
-
-* Tue Jun 15 2010 Alexander Kurtakov <akurtako@redhat.com> 2.2-0.3.beta5
-- Add missing Requires.
-
-* Thu Jun 03 2010 Yong Yang <yyang@redhat.com> - 2.2-0.2.beta5
-- Chmod 0644 for depmap.xml
-- Fix Obsoletes and Provides
-- Change to BR java
-
-* Thu May 20 2010 Yong Yang <yyang@redhat.com> - 2.2-0.1.beta5
-- Initial build
+%doc LICENSE NOTICE README.md

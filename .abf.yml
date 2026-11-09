@@ -1,3 +1,6 @@
 sources:
+  maven-assembly-plugin-3.8.0.tar.gz: 3ef49f91f62107dbcbbe96e7b8ed7d8c21f5cea7
+  maven-assembly-plugin-3.8.0-sources.jar: 8d283947c4bcd2c4ae58025db071a00012518840
+removed_sources:
   maven-assembly-plugin-2.4-source-release.zip: 0d9b53ba22c9af930910461f43e1405bbdcadfcb
   maven-assembly-plugin-2.4.1-source-release.zip: ad90df9aed88e3c5d5e2719440431f0f576bf750
